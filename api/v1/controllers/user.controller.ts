@@ -7,13 +7,13 @@ import { generateRandomString } from "../../../helpers/generate";
 export const register = async (req: Request, res: Response): Promise<void> => {
   const existEmail = await User.findOne({
     email: req.body.email,
-    deleted: false
+    deleted: false,
   });
 
-  if(existEmail) {
+  if (existEmail) {
     res.json({
       code: 400,
-      message: "Email đã tồn tại!"
+      message: "Email đã tồn tại!",
     });
     return;
   }
@@ -33,7 +33,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   res.json({
     code: 200,
     message: "Đăng ký tài khoản thành công!",
-    token: token
+    token: token,
   });
 };
 // [POST] /api/v1/users/login
@@ -43,21 +43,21 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
   const existUser = await User.findOne({
     email: email,
-    deleted: false
+    deleted: false,
   });
 
-  if(!existUser) {
+  if (!existUser) {
     res.json({
       code: 400,
-      message: "Email không tồn tại!"
+      message: "Email không tồn tại!",
     });
     return;
   }
 
-  if(md5(password) != existUser.password) {
+  if (md5(password) != existUser.password) {
     res.json({
       code: 400,
-      message: "Sai mật khẩu!"
+      message: "Sai mật khẩu!",
     });
     return;
   }
@@ -67,6 +67,24 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   res.json({
     code: 200,
     message: "Đăng nhập thành công!",
-    token: token
+    token: token,
+  });
+};
+
+// [GET] /api/v1/users/detail/:id
+export const detail = async (req: Request, res: Response): Promise<void> => {
+  const id: string = req.params.id;
+
+  const user = await User.findOne({
+    _id: id,
+    deleted: false,
+  }).select("-password -token");
+
+  console.log(user);
+
+  res.json({
+    code: 200,
+    message: "Thành công!",
+    info: user,
   });
 };
