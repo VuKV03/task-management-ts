@@ -1,37 +1,48 @@
 import { Request, Response } from "express";
 import Task from "../models/task.model";
+import paginationHelper from "../../../helpers/pagination";
 
 export const index = async (req: Request, res: Response) => {
-
   // Find
   interface Find {
-    deleted: boolean,
-    status?: string,
+    deleted: boolean;
+    status?: string;
   }
 
   const find: Find = {
     deleted: false,
-  }
+  };
 
-  if(req.query.status) {
+  if (req.query.status) {
     find.status = req.query.status.toString();
   }
   // End Find
 
+  // Pagination
+  let initPagination = {
+    currentPage: 1,
+    limitItems: 2,
+  };
+  const countTasks = await Task.countDocuments(find);
+  const objPagination = paginationHelper(initPagination, req.query, countTasks);
+  // End Pagination
+
   // Sort
   const sort = {};
 
-  if(req.query.sortKey && req.query.sortValue) {
+  if (req.query.sortKey && req.query.sortValue) {
     const sortKey = req.query.sortKey.toLocaleString();
     sort[sortKey] = req.query.sortValue;
   }
-  // End Sort
+  // End
 
-
-  const tasks = await Task.find(find).sort(sort);
+  const tasks = await Task.find(find)
+    .sort(sort)
+    .limit(objPagination.limitItems)
+    .skip(objPagination.skip);
 
   res.json(tasks);
-}
+};
 
 export const detail = async (req: Request, res: Response) => {
   const id: string = req.params.id;
@@ -42,4 +53,4 @@ export const detail = async (req: Request, res: Response) => {
   });
 
   res.json(task);
-}
+};
