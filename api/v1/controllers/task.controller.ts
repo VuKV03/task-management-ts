@@ -92,7 +92,7 @@ export const changeStatus = async (req: Request, res: Response) => {
   }
 };
 
-// [PATCH] /api/v1/tasks/change-status/:id
+// [PATCH] /api/v1/tasks/change-multi
 export const changeMulti = async (req: Request, res: Response) => {
   try {
     const { ids, status } = req.body;
@@ -171,10 +171,40 @@ export const deleteTask = async (req: Request, res: Response) => {
   try {
     const id: string = req.params.id;
 
-    await Task.updateOne({ _id: id }, {
-      deleted: true,
-      deletedAt: new Date()
+    await Task.updateOne(
+      { _id: id },
+      {
+        deleted: true,
+        deletedAt: new Date(),
+      }
+    );
+
+    res.json({
+      code: 200,
+      message: "Xóa thành công!",
     });
+  } catch (error) {
+    res.json({
+      code: 400,
+      message: "Lỗi!",
+    });
+  }
+};
+
+// [DELETE] /api/v1/tasks/delete-multi
+export const deleteMulti = async (req: Request, res: Response) => {
+  try {
+    const { ids } = req.body;
+
+    await Task.updateMany(
+      {
+        _id: { $in: ids },
+      },
+      {
+        deleted: true,
+        deletedAt: new Date(),
+      }
+    );
 
     res.json({
       code: 200,

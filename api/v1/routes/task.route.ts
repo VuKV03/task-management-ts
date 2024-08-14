@@ -16,4 +16,6 @@ router.patch("/edit/:id", controller.edit);
 
 router.delete("/delete/:id", controller.deleteTask);
 
+router.delete("/delete-multi", controller.deleteMulti);
+
 export const taskRoutes: Router = router;
